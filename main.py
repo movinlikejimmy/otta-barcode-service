@@ -30,8 +30,25 @@ def detect_barcodes_in_image(image: Image.Image):
     # Detect barcodes
     barcodes = pyzbar.decode(gray_image)
     
+    # Deduplicate by barcode data (same QR code shown twice)
+    seen_data = set()
+    unique_barcodes = []
+    
+    for barcode in barcodes:
+        try:
+            barcode_data = barcode.data.decode("utf-8")
+        except:
+            barcode_data = str(barcode.data)
+        
+        # Skip if we've seen this exact data before
+        if barcode_data in seen_data:
+            continue
+        
+        seen_data.add(barcode_data)
+        unique_barcodes.append(barcode)
+    
     results = []
-    for idx, barcode in enumerate(barcodes):
+    for idx, barcode in enumerate(unique_barcodes):
         # Get barcode rectangle
         x, y, w, h = barcode.rect
         
