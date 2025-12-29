@@ -52,19 +52,19 @@ def detect_barcodes_in_image(image: Image.Image):
         # Get barcode rectangle
         x, y, w, h = barcode.rect
         
-        # Add padding around barcode (10% on each side)
-        padding = int(min(w, h) * 0.1)
-        x_padded = max(0, x - padding)
-        y_padded = max(0, y - padding)
-        w_padded = min(image.width - x_padded, w + 2 * padding)
-        h_padded = min(image.height - y_padded, h + 2 * padding)
+        # Crop at absolute edges (minimal 2px padding to avoid cutting pixels)
+        padding = 2
+        x_crop = max(0, x - padding)
+        y_crop = max(0, y - padding)
+        x_end = min(image.width, x + w + padding)
+        y_end = min(image.height, y + h + padding)
         
-        # Crop barcode from original image (with padding)
+        # Crop barcode from original image at absolute edges
         barcode_crop = image.crop((
-            x_padded,
-            y_padded,
-            x_padded + w_padded,
-            y_padded + h_padded
+            x_crop,
+            y_crop,
+            x_end,
+            y_end
         ))
         
         # Convert to base64
